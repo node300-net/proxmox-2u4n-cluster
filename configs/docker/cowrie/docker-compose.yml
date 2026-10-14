@@ -1,0 +1,47 @@
+# =============================================================================
+# Cowrie SSH/Telnet-Honeypot via Docker Compose
+# Ziel: Docker-VM oder LXC (nesting=1) auf NODE 1 im VLAN 50 (DMZ-HONEY)
+# ⚠️ BEISPIEL – Egress des Hosts/VLANs sperren; nur Log-Ziel erlauben.
+# Image & Pfade: https://hub.docker.com/r/cowrie/cowrie · https://docs.cowrie.org/
+# Lizenz: MIT
+# =============================================================================
+services:
+  cowrie:
+    image: cowrie/cowrie:latest          # ⚠️ für Reproduzierbarkeit auf einen Tag/Digest pinnen
+    container_name: cowrie
+    restart: unless-stopped
+    ports:
+      - "2222:2222"                      # SSH-Honeypot  (Firewall: extern 22 → 2222)
+      - "2223:2223"                      # Telnet-Honeypot (optional)
+    volumes:
+      - cowrie-etc:/cowrie/cowrie-git/etc   # cowrie.cfg, userdb.txt
+      - cowrie-var:/cowrie/cowrie-git/var   # Logs (cowrie.json), Downloads, TTY-Sessions
+    environment:
+      # Konfiguration per Umgebungsvariablen: COWRIE_<SECTION>_<KEY>
+      COWRIE_HONEYPOT_HOSTNAME: "<<FAKE_HOSTNAME>>"   # z. B. srv-backup01
+      COWRIE_OUTPUT_JSONLOG_ENABLED: "true"
+    read_only: true                      # ⚠️ falls Cowrie Schreibfehler meldet: entfernen und nur Volumes beschreibbar halten
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 768m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # Optional: Logs nach Loki/Wazuh schieben (Promtail/Alloy oder Wazuh-Agent auf dem Host)
+  # promtail:
+  #   image: grafana/promtail:<<VERSION>>
+  #   volumes:
+  #     - cowrie-var:/cowrie-var:ro
+  #     - ./promtail.yml:/etc/promtail/config.yml:ro
+
+volumes:
+  cowrie-etc:
+  cowrie-var:

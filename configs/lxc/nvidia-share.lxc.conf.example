@@ -1,0 +1,12 @@
+# Ergänzung für /etc/pve/lxc/<<CTID>>.conf – NVIDIA-GPU mit mehreren LXCs TEILEN (z. B. Jellyfin + Ollama)
+# ⚠️ BEISPIEL. Voraussetzung: NVIDIA-Treiber auf dem HOST; im LXC DIESELBE Version mit --no-kernel-module.
+# Pascal (GTX 1080 Ti): R580-Branch ist der letzte (siehe docs/reality-check.md#rc-n7).
+# Proxmox VE 9.x unterstützt devX-Einträge (Device-Passthrough für Container, siehe Admin Guide → pct).
+# Bei unprivilegierten LXCs ggf. gid=<<GID>>/mode=0666 setzen.
+# Lizenz: MIT
+dev0: /dev/nvidia0
+dev1: /dev/nvidiactl
+dev2: /dev/nvidia-uvm
+dev3: /dev/nvidia-uvm-tools
+dev4: /dev/nvidia-modeset
+# Prüfen im Container: nvidia-smi

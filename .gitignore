@@ -1,0 +1,66 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+*.code-workspace
+
+# Secrets & lokale Overrides
+.env
+.env.*
+*.env
+!*.env.example
+*.key
+*.pem
+*.p12
+*token*
+!**/*token*.example
+secrets/
+credentials/
+wazuh-install-files.tar
+wazuh-passwords.txt
+
+# Terraform / OpenTofu (State enthält Secrets!)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+.terraform.lock.hcl
+
+# Ansible
+*.retry
+vault-pass*
+.vault_pass*
+
+# Honeypot- & IDS-Daten (echte Angreifer-IPs, Sessions, Malware-Samples!)
+cowrie.json*
+*.pcap
+*.pcapng
+eve.json*
+downloads/
+tty/
+var/
+
+# Logs / Exporte / Backups
+*.log
+exports/
+*.vma
+*.vma.zst
+*.tar.zst
+*.iso
+*.qcow2
+
+# Python / Node
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+
+# Archive
+*.zip
+*.tar.gz

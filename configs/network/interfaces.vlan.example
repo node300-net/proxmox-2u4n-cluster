@@ -1,0 +1,50 @@
+# /etc/network/interfaces – BEISPIEL für einen Node des 2U-4-Node-Clusters (ifupdown2)
+# ⚠️ PLATZHALTER ersetzen: <<N>> = Node-Nummer (10..13), Interface-Namen via `ip -br link`.
+# Anwenden: ifreload -a   (IPMI-KVM offen halten!)
+# VLAN-Plan: siehe README.md → „Node-Rollen & VLANs“
+# Lizenz: MIT
+
+auto lo
+iface lo inet loopback
+
+# --- 82574L #1 → Huawei S220S (Trunk: 10,50,60,70,80,90,100) ----------------
+auto eno1
+iface eno1 inet manual
+
+# VLAN-aware Bridge für alle Gäste. Gäste bekommen ihr VLAN per "tag=" auf der vNIC.
+auto vmbr0
+iface vmbr0 inet manual
+        bridge-ports eno1
+        bridge-stp off
+        bridge-fd 0
+        bridge-vlan-aware yes
+        bridge-vids 10 50 60 70 80 90 100
+
+# Management-IP des Hosts als VLAN-Interface auf der Bridge (VLAN 10)
+auto vmbr0.10
+iface vmbr0.10 inet static
+        address 10.10.10.<<N>>/24
+        gateway 10.10.10.1
+
+# --- 82574L #2 → Zyxel GS1900 (Access VLAN 30) – Corosync link0, NICHT geroutet --
+auto eno2
+iface eno2 inet static
+        address 10.10.30.<<N>>/24
+
+# --- X710 Port 0 – Storage/Migration/Replikation (VLAN 40), nur wenn X710 im Node! --
+# (RC-3: der einzige PCIe-Slot ist ggf. von einer GPU belegt)
+#auto <<X710_P0>>
+#iface <<X710_P0>> inet static
+#        address 10.10.40.<<N>>/24
+#        mtu 9000
+#   Corosync link1 läuft über vmbr0.10 (MGMT), weil NODE 2 keine X710 hat.
+
+# --- SPAN/Mirror-Bridge nur auf NODE 3 (Suricata) -----------------------------
+# Eigener physischer Port empfohlen; hier Beispiel mit VLAN 70 auf vmbr0 ist NICHT ideal,
+# weil Mirror-Traffic sonst die Bridge belastet. Besser: eigener NIC-Port → vmbr70 ohne IP.
+#auto vmbr70
+#iface vmbr70 inet manual
+#        bridge-ports <<SPAN_PORT>>
+#        bridge-stp off
+#        bridge-fd 0
+#        bridge-ageing 0        # Bridge leitet alles weiter (Hub-Verhalten) – für IDS gewollt

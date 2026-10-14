@@ -1,0 +1,45 @@
+{
+    "_comment": "⚠️ BEISPIEL für /etc/opencanaryd/opencanary.conf – <<PLATZHALTER>> ersetzen. Doku: https://opencanary.readthedocs.io/ · Lizenz: MIT",
+    "device.node_id": "<<CANARY_NAME>>",
+    "ip.ignorelist": [ "<<MONITORING_IP>>" ],
+    "logtype.ignorelist": [],
+    "logger": {
+        "class": "PyLogger",
+        "kwargs": {
+            "formatters": {
+                "plain": { "format": "%(message)s" },
+                "syslog_rfc": { "format": "opencanaryd[%(process)-5s:%(thread)d]: %(name)s %(levelname)-5s %(message)s" }
+            },
+            "handlers": {
+                "file": {
+                    "class": "logging.FileHandler",
+                    "filename": "/var/tmp/opencanary.log"
+                },
+                "syslog-unix": {
+                    "class": "logging.handlers.SysLogHandler",
+                    "formatter": "syslog_rfc",
+                    "address": [ "<<SYSLOG_IP_NODE3>>", 514 ],
+                    "socktype": "ext://socket.SOCK_DGRAM"
+                }
+            }
+        }
+    },
+    "ftp.enabled": true,
+    "ftp.port": 21,
+    "ftp.banner": "FTP server ready",
+    "http.enabled": true,
+    "http.port": 80,
+    "http.banner": "Apache/2.4.62 (Debian)",
+    "http.skin": "nasLogin",
+    "smb.enabled": false,
+    "ssh.enabled": false,
+    "rdp.enabled": true,
+    "rdp.port": 3389,
+    "mysql.enabled": true,
+    "mysql.port": 3306,
+    "mysql.banner": "5.7.44-log",
+    "snmp.enabled": true,
+    "snmp.port": 161,
+    "portscan.enabled": false,
+    "telnet.enabled": false
+}
